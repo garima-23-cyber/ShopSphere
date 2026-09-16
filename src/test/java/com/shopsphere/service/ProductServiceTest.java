@@ -2,18 +2,37 @@ package com.shopsphere.service;
 
 import com.shopsphere.exception.ProductNotFoundException;
 import com.shopsphere.model.Product;
+import com.shopsphere.repository.DataStore;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.io.IOException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ProductServiceTest {
 
+    private static final Path DATA_FILE = Path.of("shopsphere.dat");
+
+    @BeforeEach
+    void cleanBeforeTest() throws IOException {
+        Files.deleteIfExists(DATA_FILE);
+    }
+
+    @AfterEach
+    void cleanAfterTest() throws IOException {
+        Files.deleteIfExists(DATA_FILE);
+    }
+
     @Test
     void shouldAddProduct() {
 
-        ProductService service = new ProductService();
+        DataStore dataStore = new DataStore();
+        ProductService service = new ProductService(dataStore);
 
         Product product = new Product(
                 "P1001",
@@ -31,7 +50,8 @@ class ProductServiceTest {
     @Test
     void shouldFindProductById() {
 
-        ProductService service = new ProductService();
+        DataStore dataStore = new DataStore();
+        ProductService service = new ProductService(dataStore);
 
         Product product = new Product(
                 "P1002",
@@ -51,7 +71,8 @@ class ProductServiceTest {
     @Test
     void shouldSearchProductByName() {
 
-        ProductService service = new ProductService();
+        DataStore dataStore = new DataStore();
+        ProductService service = new ProductService(dataStore);
 
         service.addProduct(new Product(
                 "P1003",
@@ -61,8 +82,7 @@ class ProductServiceTest {
                 10
         ));
 
-        List<Product> result =
-                service.searchByName("Java");
+        List<Product> result = service.searchByName("Java");
 
         assertEquals(1, result.size());
     }
@@ -70,7 +90,8 @@ class ProductServiceTest {
     @Test
     void shouldRejectDuplicateProductId() {
 
-        ProductService service = new ProductService();
+        DataStore dataStore = new DataStore();
+        ProductService service = new ProductService(dataStore);
 
         Product product = new Product(
                 "P1004",
@@ -91,7 +112,8 @@ class ProductServiceTest {
     @Test
     void shouldThrowExceptionForMissingProduct() {
 
-        ProductService service = new ProductService();
+        DataStore dataStore = new DataStore();
+        ProductService service = new ProductService(dataStore);
 
         assertThrows(
                 ProductNotFoundException.class,
